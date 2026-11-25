@@ -17,7 +17,6 @@ noncomputable section
 
 namespace GradedSubmodules
 
-set_option linter.unusedSectionVars false
 
 variable {S : Type} [CommRing S] {K : Type} [Fintype K] {ι : K → Type} [∀ k, Fintype (ι k)]
   {M : Type} [AddCommGroup M] [Module (MRingOver S ι) M] [Module S M] [IsScalarTower S (MRingOver S ι) M]

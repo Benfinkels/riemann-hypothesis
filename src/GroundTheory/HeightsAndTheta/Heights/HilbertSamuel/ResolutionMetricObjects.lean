@@ -15,7 +15,6 @@ open scoped ComplexConjugate
 
 noncomputable section
 
-set_option linter.unusedSectionVars false
 
 variable {D : ℕ} {Ω : Type} [Field Ω] [CharZero Ω] {κ : Type} [Fintype κ]
 

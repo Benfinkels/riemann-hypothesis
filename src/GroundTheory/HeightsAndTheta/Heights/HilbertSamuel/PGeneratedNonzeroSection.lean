@@ -20,7 +20,6 @@ noncomputable section
 
 namespace GeneratedNonzeroSection
 
-set_option linter.unusedSectionVars false
 
 variable {K : Type} [Fintype K] [LinearOrder K] {ι : K → Type} [∀ k, Fintype (ι k)] [∀ k, LinearOrder (ι k)]
 

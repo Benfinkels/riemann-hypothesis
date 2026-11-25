@@ -16,7 +16,6 @@ open MvPolynomial ReciprocityTheory.ChartRestriction.G.Geo ReciprocityTheory.Cha
 
 noncomputable section
 
-set_option linter.unusedSectionVars false
 
 namespace ChangeOfLatticeNested
 
