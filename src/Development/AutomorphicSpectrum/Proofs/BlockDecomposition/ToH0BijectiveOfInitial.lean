@@ -20,7 +20,6 @@ import Development.AutomorphicSpectrum.Proofs.BlockDecomposition.TensTransfer
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 set_option linter.unusedVariables false
@@ -61,13 +60,14 @@ theorem alpha_τ (c : R') {a b : IdF Φ.A} {a' b' : IdF Φ'.A} (ha : m.LeC c a a
     (y : sqM a b (m.G.obj X.T)) :
     (mP m E E' e he hρ Q Q' c ha hb).τ X (((alpha Q a b).app ((Gp m E E' e).obj X)).hom y) =
       ((alpha Q' a' b').app X).hom ((mPt m E E' e c ha hb).τ X y) := by
+  let y' : (sq a b).obj (m.G.obj X.T) := y
   change (m.sqC c ha hb).τ (Q'.P X.T) (((sq a b).map (etaC m E E' e he hρ Q Q' X).1).hom
-      (((sq a b).map (Q.j (m.G.obj X.T))).hom y)) = ((sq a' b').map (Q'.j X.T)).hom ((m.sqC c ha hb).τ X.T y)
-  rw [← (m.sqC c ha hb).nat]
-  congr 1
-  have h2 := congrArg (fun t => ((sq a b).map t).hom y) (j_eta m E E' e he hρ Q Q' X)
-  simp only [Functor.map_comp, ModuleCat.hom_comp, LinearMap.comp_apply] at h2
-  exact h2
+      (((sq a b).map (Q.j (m.G.obj X.T))).hom y')) = ((sq a' b').map (Q'.j X.T)).hom ((m.sqC c ha hb).τ X.T y')
+  have h2 : ((sq a b).map (etaC m E E' e he hρ Q Q' X).1).hom (((sq a b).map (Q.j (m.G.obj X.T))).hom y') =
+      ((sq a b).map (m.G.map (Q'.j X.T))).hom y' :=
+    (congrArg (fun f => f.hom y') ((sq a b).map_comp (Q.j (m.G.obj X.T)) (etaC m E E' e he hρ Q Q' X).1)).symm.trans
+      (congrArg (fun t => ((sq a b).map t).hom y') (j_eta m E E' e he hρ Q Q' X))
+  exact (congrArg ((m.sqC c ha hb).τ (Q'.P X.T)) h2).trans ((m.sqC c ha hb).nat (Q'.j X.T) y')
 
 theorem alpha_hom (c : R') {a b : IdF Φ.A} {a' b' : IdF Φ'.A} (ha : m.LeC c a a') (hb : m.LeC c b b') (k : ℕ)
     (x : CH.Cn (Pt.U E ⋙ sq a b) k) :
@@ -127,7 +127,7 @@ theorem beta_τ {a b : ℤ → IdF Φ.A} {a' b' : ℤ → IdF Φ'.A} {r : ℤ} (
     have h := hmem (k + 1)
     rwa [show r - ((k + 1 : ℕ) : ℤ) = r - 1 - (k : ℤ) by push_cast; ring] at h
   have hb1 := hβ ((Gp m E E' e).obj X) cc c' ⟨_, hy⟩ ⟨_, Ideal.mem_map_of_mem _ hw'⟩ hc' rfl rfl
-  rw [hb1]
+  refine (congrArg ((mP m E E' e he hρ Q Q' c _ _).τ X) hb1).trans ?_
   symm
   refine hβ' X (cc.mapRange (fun x => algebraMap R' (Φ'.A.obj X.T) c * m.ρ X.T x) (by simp))
     (c'.mapRange (fun x => algebraMap R' (Φ'.A.obj X.T) c * m.ρ X.T x) (by simp)) _ _ (fun k => ?_) ?_ ?_
@@ -148,7 +148,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 noncomputable section
@@ -175,7 +174,7 @@ theorem sqC_smul {c c' : R'} (r : R) (hc : c' = σ r * c) {a b : IdF Φ.A} {a' b
     (x : sqM a b (m.G.obj T)) :
     (m.sqC c' ha' hb').τ T x = (m.sqC c ha hb).τ T (r • x) := by
   subst hc
-  rw [LinearMap.map_smulₛₗ]
+  refine Eq.trans ?_ (((m.sqC c ha hb).τ T).map_smulₛₗ r x).symm
   obtain ⟨x, hx⟩ := x
   obtain ⟨y, rfl⟩ := Ideal.Quotient.mk_surjective x
   refine Subtype.ext ?_
@@ -253,7 +252,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 set_option linter.unusedVariables false
@@ -330,7 +328,7 @@ theorem base_case {D : C} {D' : C'} (hD : Limits.IsInitial D) (hD' : Limits.IsIn
     refine (CrystallineSemistableComparison.P.mapH_cls _ 0 _ h1 (CrystallineSemistableComparison.CechClassBoundaries.cyc _ _ h1)).trans (cls_congr (funext fun s => ?_) _ _)
     change (m.sqC (ν i n) (ha i n) (hb i n)).τ _ (((sq (a i) (b i)).map (hD.to (m.G.obj (s.obj (Fin.last 0))))).hom x) =
       ((sq a' b').map (hD'.to (s.obj (Fin.last 0)))).hom ((m.sqC (ν i n) (ha i n) (hb i n)).τ D' (((sq (a i) (b i)).map e).hom x))
-    rw [← (m.sqC (ν i n) (ha i n) (hb i n)).nat]
+    refine Eq.trans ?_ ((m.sqC (ν i n) (ha i n) (hb i n)).nat (hD'.to (s.obj (Fin.last 0))) (((sq (a i) (b i)).map e).hom x))
     congr 1
     have h2 := congrArg (fun t => ((sq (a i) (b i)).map t).hom x)
       (hD.hom_ext (hD.to (m.G.obj (s.obj (Fin.last 0)))) (e ≫ m.G.map (hD'.to (s.obj (Fin.last 0)))))

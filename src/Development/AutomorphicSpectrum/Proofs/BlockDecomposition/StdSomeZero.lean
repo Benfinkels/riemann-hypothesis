@@ -22,7 +22,6 @@ import Mathlib.Tactic.Linter.HaveILetI
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison.Pb
 
 noncomputable section
@@ -75,8 +74,7 @@ theorem lift_unique {I' : Ideal R'} {J : Ideal D} {B : Type} [CommRing B]
   let φ := Ideal.Quotient.lift _ Φ.toRingHom fun z hz => hker hz
   have hφ : ∀ r x, φ (Ideal.Quotient.mk _ (r ⊗ₜ[R] x)) = a (Ideal.Quotient.mk I' r) * b (Ideal.Quotient.mk J x) :=
     fun r x => by
-      rw [Ideal.Quotient.lift_mk]
-      exact hΦ r x
+      exact (Ideal.Quotient.lift_mk (Ideal.map Algebra.TensorProduct.includeLeftRingHom I') Φ.toRingHom _).trans (hΦ r x)
   refine ⟨φ, ⟨?_, ?_⟩, ?_⟩
   · refine Ideal.Quotient.ringHom_ext (RingHom.ext fun r => ?_)
     change φ (Ideal.Quotient.mk _ (r ⊗ₜ[R] 1)) = a (Ideal.Quotient.mk I' r)
@@ -185,11 +183,8 @@ theorem chart_bc : ∀ {O R R' : Type} [CommRing O] [CommRing R] [CommRing R'] {
           have hb : Spec.map (CommRingCat.ofHom φ₂) ≫ (Spec.map (CommRingCat.ofHom h) ≫ pt c.D) = z.1.2 :=
             congrArg (fun w : PtOver X q κ' B => w.1.2) hφ₂
           refine ⟨ha, hun (φ₂.comp h) (Subtype.ext (Prod.ext ?_ ?_))⟩
-          · change (φ₂.comp h).comp y₀.1.1 = z.1.1.comp m.bar
-            rw [RingHom.comp_assoc, hhy, ← RingHom.comp_assoc, ha]
-          · change Spec.map (CommRingCat.ofHom (φ₂.comp h)) ≫ pt c.D = z.1.2
-            rw [CommRingCat.ofHom_comp, Spec.map_comp, Category.assoc]
-            exact hb }
+          · exact (RingHom.comp_assoc y₀.1.1 h φ₂).trans ((congrArg (φ₂.comp ·) hhy).trans ((RingHom.comp_assoc m.bar ψ φ₂).symm.trans (congrArg (·.comp m.bar) ha)))
+          · exact (congrArg (· ≫ pt c.D) ((congrArg Spec.map (CommRingCat.ofHom_comp h φ₂)).trans (Spec.map_comp _ _))).trans ((Category.assoc _ _ _).trans hb) }
   let e : c.D ⟶ (m.mor p).functor.obj c'.D :=
     mkH (T' := (m.mor p).functor.obj c'.D) iR hcomm
       (dp_right (R := R) (R' := R') (D := c.D.B) c.D.δ δ' c.J_eq c.D.compat hδ' m.hI) hle

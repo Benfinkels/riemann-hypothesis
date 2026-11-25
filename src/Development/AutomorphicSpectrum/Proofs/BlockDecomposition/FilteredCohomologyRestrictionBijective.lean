@@ -9,7 +9,6 @@ import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCohomology
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 set_option linter.unusedVariables false
@@ -39,8 +38,7 @@ theorem pull_bij_of_adj {F : C ⥤ ModuleCat.{w} R} {F' : C' ⥤ ModuleCat.{w} R
         have e2 : (F.map (m.G.map (L.map f))).hom ((F.map (a.unit.app T)).hom x) =
             (F.map (a.unit.app T ≫ m.G.map (L.map f))).hom x := by
           rw [F.map_comp]; rfl
-        rw [e1, e2, e]
-        rfl }
+        rw [e1, e2, e] }
   have hR := CrystallineSemistableComparison.P.adj F' L m.G a n
   have hα : Function.Bijective ((CH.Mor.ofNatTrans α).pull n) := by
     have h1 := _root_.GlobalTheory.CompanionTheory.CoefUpTo.coef_upTo α 1
@@ -131,8 +129,7 @@ theorem qRing_dp {T T' : Thick (nlFun γ 0 X q κ)} (f : T ⟶ T') {s : ℕ} (hs
   refine dp_lift T.δ (sub_inf T hs) _ _ ?_
   have e : (qRing f s).comp (Ideal.Quotient.mk (T.pdPow s)) = (Ideal.Quotient.mk (T'.pdPow s)).comp f.φ := by
     ext; rfl
-  rw [e]
-  exact IsDPMorphism.comp _ (Quotient.isDPMorphism T'.δ (sub_inf T' hs)) f.dp
+  exact e.symm ▸ IsDPMorphism.comp _ (Quotient.isDPMorphism T'.δ (sub_inf T' hs)) f.dp
 
 def qMap {T T' : Thick (nlFun γ 0 X q κ)} (f : T ⟶ T') {s : ℕ} (hs : 1 ≤ s) : qT T hs ⟶ qT T' hs :=
   mkH (qRing f s) (fun r => congrArg (Ideal.Quotient.mk _) (f.comm r)) (qRing_dp f hs) (q_le f hs) (by
@@ -171,7 +168,7 @@ theorem pdPow_q (T : Thick (nlFun γ 0 X q κ)) {s : ℕ} (hs : 1 ≤ s) (r : �
     (FubiniStudyChowHeightFormula₂.Adr.Fil.map_fil_le T.δ (qT T hs).δ _ (Quotient.isDPMorphism T.δ (sub_inf T hs)) r)
 
 theorem q_bot (T : Thick (nlFun γ 0 X q κ)) {s : ℕ} (hs : 1 ≤ s) : (qT T hs).pdPow s = ⊥ := by
-  rw [pdPow_q, Ideal.map_quotient_self]
+  rw [pdPow_q, Ideal.map_quotient_self]; rfl
 
 theorem inU_q {V : X.Opens} {T : Thick (nlFun γ 0 X q κ)} (h : InU V T) {s : ℕ} (hs : 1 ≤ s) : InU V (qT T hs) := by
   intro x _
@@ -243,9 +240,8 @@ theorem unit_bij {s : ℕ} (hs : 1 ≤ s) (hq : ∀ T, Q T → Q' (qT T hs)) (h 
     obtain ⟨y₁, hy₁, rfl⟩ := (Ideal.mem_map_iff_of_surjective _ Ideal.Quotient.mk_surjective).1 h₁
     obtain ⟨y₂, hy₂, rfl⟩ := (Ideal.mem_map_iff_of_surjective _ Ideal.Quotient.mk_surjective).1 h₂
     have e' := congrArg Subtype.val e
-    have e'' : Ideal.Quotient.mk (T.obj.pdPow s) y₁ - Ideal.Quotient.mk (T.obj.pdPow s) y₂ ∈
-        (qT T.obj hs).pdPow r'.toNat := Ideal.Quotient.eq.1 e'
-    rw [← map_sub] at e''
+    have e'' : Ideal.Quotient.mk (T.obj.pdPow s) (y₁ - y₂) ∈ (qT T.obj hs).pdPow r'.toNat :=
+      (map_sub (Ideal.Quotient.mk (T.obj.pdPow s)) y₁ y₂).symm ▸ (Ideal.Quotient.eq (I := (qT T.obj hs).pdPow r'.toNat)).1 e'
     exact Subtype.ext (Ideal.Quotient.eq.2 (mem_of_mk T.obj hs ht e''))
   · rintro ⟨u, hu⟩
     obtain ⟨v, hv, rfl⟩ := (Ideal.mem_map_iff_of_surjective _ Ideal.Quotient.mk_surjective).1 hu

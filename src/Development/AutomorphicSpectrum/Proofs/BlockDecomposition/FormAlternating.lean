@@ -19,7 +19,6 @@ import Mathlib.Topology.Sheaves.Presheaf
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory Opposite CrystallineSemistableComparison CrystallineSemistableComparison.CH
 universe w w' w'' t t' v u v' u' v'' u''
 
@@ -77,11 +76,13 @@ theorem cup_assocC : ∀ {R : Type} [CommRing R] {C : Type u} [Category.{v} C] (
   intro R _ C _ A
   refine ⟨fun n x => ⟨?_, ?_⟩, ?_⟩
   · funext s
-    rw [cupC_at, term_one, term_congr (modF A) s x (back_mono _) monotone_id
+    refine (cupC_at (mulP A) (Nat.zero_add n) (fun s => (1 : A.obj (s.obj (Fin.last 0)))) x s).trans ?_
+    rw [term_one, term_congr (modF A) s x (back_mono _) monotone_id
       (funext fun i => Fin.ext (by simp [back])), term_id]
     exact one_mul (M := A.obj (s.obj (Fin.last n))) _
   · funext s
-    rw [cupC_at, term_one, term_congr (modF A) s x (front_mono _) monotone_id
+    refine (cupC_at (mulP A) (Nat.add_zero n) x (fun s => (1 : A.obj (s.obj (Fin.last 0)))) s).trans ?_
+    rw [term_one, term_congr (modF A) s x (front_mono _) monotone_id
       (funext fun i => Fin.ext (by simp [front])), term_id]
     exact mul_one (M := A.obj (s.obj (Fin.last n))) _
   · intro p q r a b n h₁ h₂ h₃ h₄ x y z
@@ -105,7 +106,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 set_option linter.unusedVariables false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
@@ -512,10 +512,9 @@ theorem d_pj (a b : IdF A) {n : ℕ} (z : Co A n) (hz : In a z) (s : ComposableA
     ((sq a b).map (GlobalTheory.CatH.toLast i s)).hom (pj a b z hz (GlobalTheory.CatH.face i s))) =
     Ideal.Quotient.mk _ (∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • tm s z i.succAbove (Fin.strictMono_succAbove i).monotone)
 
-  rw [map_sum, map_sum]
-  refine Finset.sum_congr rfl fun i _ => ?_
-  rw [map_zsmul, map_zsmul]
-  rfl
+  refine (map_sum (sqM a b (s.obj (Fin.last (n + 1)))).subtype _ Finset.univ).trans ?_
+  refine (Finset.sum_congr rfl fun i _ => ?_).trans (map_sum (Ideal.Quotient.mk _) _ Finset.univ).symm
+  exact (map_zsmul (sqM a b (s.obj (Fin.last (n + 1)))).subtype _ _).trans (map_zsmul (Ideal.Quotient.mk _) _ _).symm
 
 theorem Rep.zsmul {a b : IdF A} {n : ℕ} {z : Co A n} {c : CH.H (sq a b) n} (u : ℤ) (h : Rep a b z c) :
     Rep a b (u • z) (u • c) := by
@@ -626,8 +625,7 @@ theorem form_eq (σ : ∀ T : C, E.D ⟶ T) {j : ℕ} (I : Fin j → Fin d) (x :
     rw [← s.map_id]; rfl
   refine congrArg₂ (· * ·) rfl ?_
   change _ = (Φ.A.map (s.map (homOfLE (Fin.le_last (CH.back (Nat.add_zero j) (Fin.last 0)))))).hom _
-  rw [id1, Φ.A.map_id]
-  rfl
+  exact (congrArg (fun f => f.hom (cx E σ x ((CH.back_mono (Nat.add_zero j)).functor ⋙ s))) ((congrArg Φ.A.map id1).trans (Φ.A.map_id _))).symm
 
 theorem a_comp (σ : ∀ T : C, E.D ⟶ T) (i : Fin d) {T T' T'' : C} (φ : T ⟶ T') (ψ : T' ⟶ T'') :
     E.a σ i (φ ≫ ψ) = (Φ.A.map ψ).hom (E.a σ i φ) + E.a σ i ψ := by
