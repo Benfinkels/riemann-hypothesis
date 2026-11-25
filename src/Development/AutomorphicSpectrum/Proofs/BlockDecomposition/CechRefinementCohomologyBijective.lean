@@ -7,7 +7,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 noncomputable section
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
@@ -199,7 +198,7 @@ theorem tf_loc {B : Type} [CommRing B] (a : B) (J : Ideal B) (l : ℕ) (hJ : ∀
 theorem used_locN {Q₀ : ObjectProperty (Thick (nlFun γ p X q κ))} (hQ : Used Q₀) (T : Thick (nlFun γ p X q κ))
     (a : T.B) (h : Q₀ T) : Q₀ (locN T a) := by
   rcases hQ with ⟨-, l, s, rfl⟩ | ⟨-, rfl | rfl⟩
-  · refine ⟨by rw [pdPow_locN, h.1, Ideal.map_bot], fun r x hx => ?_⟩
+  · refine ⟨(pdPow_locN T a s).trans ((congrArg (Ideal.map _) h.1).trans Ideal.map_bot), fun r x hx => ?_⟩
     rw [pdPow_locN] at hx ⊢
     exact tf_loc a _ l (h.2 r) x hx
   · trivial

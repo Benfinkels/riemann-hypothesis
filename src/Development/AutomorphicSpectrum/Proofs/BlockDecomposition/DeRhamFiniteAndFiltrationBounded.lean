@@ -12,7 +12,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 namespace GlobalTheory.CompanionTheory.KFin
@@ -200,7 +199,6 @@ theorem gr_van (hVan : KH.GlobVanSt) (hAff : KH.GrAff) [Smooth q] (U : Cov q) (s
   (hVan (sq (thFil (smFun X q) r) (thFil (smFun X q) ((r : ℤ) + 1))) (TF 1 s) U.U r).1
     (fun S hS j' hj' => hAff q _ (U.inter S hS) s r j' hr (by omega)) j hj
 
-
 theorem gr_fin (hSerre : KH.GlobSerreSt) (hAff : KH.GrAff) (hCech : KH.GrCechFin) [IsProper q] [Smooth q] (U : Cov q)
     (s : ℕ) (hs : 0 < s) (𝒮 : Serre.{1} K) (h𝒮 : ∀ (M : Type 1) [AddCommGroup M] [Module K M], 𝒮.P M ↔ Module.Finite K M)
     (r : ℕ) (hr : r < s) (n : ℕ) : 𝒮.P (HQ (KS q s (Set.range U.U)) r ((r : ℤ) + 1) n) := by
@@ -224,9 +222,8 @@ theorem gr_fin (hSerre : KH.GlobSerreSt) (hAff : KH.GrAff) (hCech : KH.GrCechFin
     have h := hAff q _ (U.inter (Finset.univ.image i) ⟨i 0, Finset.mem_image_of_mem i (Finset.mem_univ _)⟩) s r b hr hb
     have e := capT_eq (K := K) (X := X) (q := q) (TF 1 s) U.U i
     have h' : Subsingleton (HU (Pb.sq (thFil (smFun X q) r) (thFil (smFun X q) ((r : ℤ) + 1)))
-        (capT (fun α => St (TF 1 s) {U.U α}) i) b) := by
-      rw [e]
-      exact h
+        (capT (fun α => St (TF 1 s) {U.U α}) i) b) :=
+      e.symm ▸ h
     exact h'.elim _ _
 
 end Spec

@@ -7,7 +7,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 set_option linter.unusedVariables false
 open CategoryTheory AlgebraicGeometry GlobalTheory.LogCris CrystallineSemistableComparison CrystallineSemistableComparison.Pb GlobalTheory.CompanionTheory.ConeLocal
 open GlobalTheory.CatH (face toLast)
@@ -237,7 +236,6 @@ theorem near (hF : IsFil Φ Fil) (hc : E.GrConst Fil) : ∀ (m : ℕ) (ℓ : Fin
       rw [sub_zero, Fintype.sum_unique, Pi.sub_apply]
       change (1 : Φ.A.obj (s.obj (Fin.last 0))) - E.form σ _ _ s = 0
       simp [Frame.form]
-      exact sub_eq_zero.2 (map_one (Φ.A.map (σ (s.obj 0))).hom).symm
     rw [e]
     exact zero_mem _
   | succ m ih =>

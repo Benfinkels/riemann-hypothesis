@@ -5,7 +5,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 noncomputable section
@@ -170,12 +169,16 @@ variable {O : Type} [CommRing O] {R : Type} [CommRing R] {I : Ideal R} {γ : Div
 theorem fAct_add (f g : Γ(X, W)) (c : HU (grF (nlFun γ p X q κ) r) Q r) :
     fAct hF hQ r (f + g) c = fAct hF hQ r f c + fAct hF hQ r g c := by
   refine mulMor_add hF r _ _ _ (fun T => sub_mem_of_mk (T := T.obj) ?_) r c
-  rw [mk_evLift, map_add (Ideal.Quotient.mk T.obj.J), mk_evLift, mk_evLift, map_add (f := _)]
+  exact (mk_evLift hQ (f + g) T).trans ((map_add (ev T.obj (hQ T.obj T.property)) f g).trans
+    ((congrArg₂ (· + ·) (mk_evLift hQ f T).symm (mk_evLift hQ g T).symm).trans
+      (map_add (Ideal.Quotient.mk T.obj.J) (evLift hQ f T : T.obj.B) (evLift hQ g T : T.obj.B)).symm))
 
 theorem fAct_mul (f g : Γ(X, W)) (c : HU (grF (nlFun γ p X q κ) r) Q r) :
     fAct hF hQ r (f * g) c = fAct hF hQ r f (fAct hF hQ r g c) := by
   refine mulMor_mul hF r _ _ _ (fun T => sub_mem_of_mk (T := T.obj) ?_) r c
-  rw [mk_evLift, map_mul (Ideal.Quotient.mk T.obj.J), mk_evLift, mk_evLift, map_mul]
+  exact (mk_evLift hQ (f * g) T).trans ((map_mul (ev T.obj (hQ T.obj T.property)) f g).trans
+    ((congrArg₂ (· * ·) (mk_evLift hQ f T).symm (mk_evLift hQ g T).symm).trans
+      (map_mul (Ideal.Quotient.mk T.obj.J) (evLift hQ f T : T.obj.B) (evLift hQ g T : T.obj.B)).symm))
 
 theorem fAct_one (c : HU (grF (nlFun γ p X q κ) r) Q r) : fAct hF hQ r 1 c = c := by
   refine (mulMor_smul hF r _ (1 : R) (fun T => sub_mem_of_mk (T := T.obj) ?_) r c).trans (one_smul _ _)

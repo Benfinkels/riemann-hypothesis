@@ -94,7 +94,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 set_option linter.unusedVariables false
 open CategoryTheory AlgebraicGeometry GlobalTheory.LogCris DividedPowers GlobalTheory.CechDR GlobalTheory.HodgeCoh
 
@@ -123,7 +122,6 @@ theorem vx_res {p n : ℕ} (s : ComposableArrows C n) (w : ∀ T : C, Φ.A.obj T
   change (Φ.A.map ((hg.functor ⋙ s).map (homOfLE (Fin.le_last i))) ≫
     Φ.A.map (s.map (homOfLE (Fin.le_last (g (Fin.last p)))))).hom (w (s.obj (g i))) = _
   rw [← Φ.A.map_comp, e]
-  rfl
 
 theorem map_idem {n : ℕ} (s : ComposableArrows C n) (i : Fin (n + 1)) (h : i ⟶ i) (x : Φ.A.obj (s.obj i)) :
     (Φ.A.map (s.map h)).hom x = x := by
@@ -237,7 +235,6 @@ theorem cup_h0_normal_coboundary (hF : IsFil Φ Fil) {m : ℕ} {g : CH.Cn (CH.mo
       (CH.mulP Φ.A).cupC (add_zero n) H (h0 y), cup_mem hF (add_zero n) (r := n + 1) (r' := 0) hH (h0_mem_filtration_zero hF y), ?_⟩
     rw [CrystallineSemistableComparison.P.leibniz, sub_neg_eq_add]
 
-
 theorem fm_change (hF : IsFil Φ Fil) {a : ℕ} {u₀ u₀' : ∀ T : C, Φ.A.obj T} {u u' : Fin a → ∀ T : C, Φ.A.obj T}
     (h₀' : Nr Fil u₀') (hu : ∀ k, Nr Fil (u k))
     (hz₀ : ∀ T, u₀' T - u₀ T ∈ (Fil ((1 : ℕ) : ℤ)).S T) (hz : ∀ k T, u' k T - u k T ∈ (Fil ((1 : ℕ) : ℤ)).S T)
@@ -334,13 +331,12 @@ theorem lifts_nr (Λ : LiftsT q) (x : Γ(X, ⊤)) : Nr (Φ := thP (smFun X q)) (
     change Ideal.quotientMap T'.J f.φ f.hle (ev T (inTop q T) x) = _
     rw [← Λ.hv T x]
     rfl
-  exact Ideal.Quotient.eq.1 h
+  exact (Ideal.Quotient.eq (I := T'.J)).1 h
 
 theorem lifts_sub (Λ Λ' : LiftsT q) (x : Γ(X, ⊤)) (T : Thick (smFun X q)) :
     Λ'.v T x - Λ.v T x ∈ (thFil (smFun X q) ((1 : ℕ) : ℤ)).S T := by
   rw [fil_one]
   exact Ideal.Quotient.eq.1 ((Λ'.hv T x).trans (Λ.hv T x).symm)
-
 
 variable (q) in
 def liftsTopBot : LiftsT q where
@@ -355,7 +351,6 @@ theorem form_eq (Λ : LiftsT q) {a : ℕ} (g₀ : Γ(X, ⊤)) (g : Fin a → Γ(
   exact mul_comm _ _
 
 end Conc
-
 
 open CrystallineSemistableComparison.HT CrystallineSemistableComparison.Om.L2 in
 theorem main : ∀ {K : Type} [CommRing K] {X : Scheme.{0}} (q : X ⟶ Spec (CommRingCat.of K)) {a : ℕ} (g₀ : Γ(X, ⊤)) (g : Fin a → Γ(X, ⊤)),

@@ -429,7 +429,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 namespace GlobalTheory.CompanionTheory.LiftLat
@@ -740,7 +739,7 @@ theorem liftA_of_afgA : AfgA → LiftA := by
     exact T.property.1.1
   · intro r T x h
     have e : (l : A) • x = (l : T.obj.B) * (show T.obj.B from x) := by
-      rw [Algebra.smul_def, map_natCast]
+      rw [Algebra.smul_def, map_natCast]; rfl
     rw [e] at h
     exact T.property.1.2 _ _ h
   · intro t ht j

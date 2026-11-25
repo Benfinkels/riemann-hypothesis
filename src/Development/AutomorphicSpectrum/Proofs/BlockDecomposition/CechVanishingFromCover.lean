@@ -7,7 +7,6 @@ import Development.AbelianVarietyTheory.Definitions.GaloisGeometry.IsDPMorphismB
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 noncomputable section
@@ -43,7 +42,6 @@ def liftCh {W : ObjectProperty C} (hW : Cosieve W) {n : ℕ} (s : ComposableArro
     ComposableArrows W.FullSubcategory n :=
   W.lift s fun i => hW (s.map (homOfLE (Fin.zero_le i))) h
 
-
 open Classical in
 def extZ {W : ObjectProperty C} (hW : Cosieve W) {n : ℕ} (y : CrystallineSemistableComparison.CH.Cn (W.ι ⋙ F) n) : CrystallineSemistableComparison.CH.Cn F n :=
   fun s => if h : W (s.obj 0) then y (liftCh hW s h) else 0
@@ -54,8 +52,7 @@ theorem pull_extZ {W : ObjectProperty C} (hW : Cosieve W) {n : ℕ} (y : Crystal
   have h : W ((t ⋙ W.ι).obj 0) := (t.obj 0).property
   change extZ hW y (t ⋙ W.ι) = y t
   unfold extZ
-  rw [dite_eq_left h]
-  rfl
+  exact dif_pos h
 
 theorem van_of_subsingleton {W : ObjectProperty C} (hW : Cosieve W) (j : ℕ)
     (hs : Subsingleton (HU F W j)) : Van F W j := by
