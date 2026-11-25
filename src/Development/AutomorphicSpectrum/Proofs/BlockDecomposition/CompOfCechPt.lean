@@ -5,7 +5,6 @@ import Std.Tactic.BVDecide.Normalize.Prop
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry Opposite CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.E GlobalTheory.EtC
 
 noncomputable section
@@ -30,16 +29,18 @@ theorem compOf_comp {k : ℕ} {U : Scheme.{0}} (z : Sx (cech f) k U) (i : Fin (k
 
 theorem ext_comp {k : ℕ} {U : Scheme.{0}} (z z' : Sx (cech f) k U)
     (hb : baseOf f z = baseOf f z') (hc : ∀ i, compOf f z i = compOf f z' i) : z = z' := by
+  let z₁ : (widePullback (yoneda.obj X) (fun _ : Fin (k + 1) => yoneda.obj Y) (fun _ => yoneda.map f)).obj (op U) := z
+  let z₂ : (widePullback (yoneda.obj X) (fun _ : Fin (k + 1) => yoneda.obj Y) (fun _ => yoneda.map f)).obj (op U) := z'
   apply yonedaEquiv.symm.injective
   apply WidePullback.hom_ext (fun _ : Fin (k + 1) => yoneda.map f)
   · intro i
-    have : yonedaEquiv (yonedaEquiv.symm z ≫ WidePullback.π (fun _ : Fin (k + 1) => yoneda.map f) i) =
-        yonedaEquiv (yonedaEquiv.symm z' ≫ WidePullback.π (fun _ : Fin (k + 1) => yoneda.map f) i) := by
+    have : yonedaEquiv (yonedaEquiv.symm z₁ ≫ WidePullback.π (fun _ : Fin (k + 1) => yoneda.map f) i) =
+        yonedaEquiv (yonedaEquiv.symm z₂ ≫ WidePullback.π (fun _ : Fin (k + 1) => yoneda.map f) i) := by
       rw [yonedaEquiv_comp, yonedaEquiv_comp, Equiv.apply_symm_apply, Equiv.apply_symm_apply]
       exact hc i
     exact yonedaEquiv.injective this
-  · have : yonedaEquiv (yonedaEquiv.symm z ≫ WidePullback.base (fun _ : Fin (k + 1) => yoneda.map f)) =
-        yonedaEquiv (yonedaEquiv.symm z' ≫ WidePullback.base (fun _ : Fin (k + 1) => yoneda.map f)) := by
+  · have : yonedaEquiv (yonedaEquiv.symm z₁ ≫ WidePullback.base (fun _ : Fin (k + 1) => yoneda.map f)) =
+        yonedaEquiv (yonedaEquiv.symm z₂ ≫ WidePullback.base (fun _ : Fin (k + 1) => yoneda.map f)) := by
       rw [yonedaEquiv_comp, yonedaEquiv_comp, Equiv.apply_symm_apply, Equiv.apply_symm_apply]
       exact hb
     exact yonedaEquiv.injective this

@@ -4,7 +4,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 noncomputable section
@@ -16,8 +15,10 @@ variable {O : Type} [CommRing O] {X : Scheme.{0}}
 theorem strV_basicOpen (q : X ⟶ Spec (CommRingCat.of O)) (V : X.Opens) (f : Γ(X, V)) :
     strV q (X.basicOpen f) = (algebraMap Γ(X, V) Γ(X, X.basicOpen f)).comp (strV q V) := by
   rw [RingHom.algebraMap_toAlgebra]
-  simp only [strV]
-  rw [← CommRingCat.hom_comp, Category.assoc, Scheme.Hom.appLE_map]
+  dsimp only [strV]
+  rw [← CommRingCat.hom_comp, Category.assoc]
+  exact (congrArg (fun g => CommRingCat.Hom.hom ((Scheme.ΓSpecIso (CommRingCat.of O)).inv ≫ g))
+    (Scheme.Hom.appLE_map q _ (homOfLE _).op)).symm
 
 theorem coord_basicOpen (q : X ⟶ Spec (CommRingCat.of O)) {V : X.Opens} (hV : IsAffineOpen V) (f : Γ(X, V)) {d : ℕ}
     (g : MvPolynomial (Fin d) O →+* Localization.Away f)

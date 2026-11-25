@@ -5,8 +5,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
-
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 noncomputable section
@@ -56,10 +54,12 @@ def eta (hpt : ∀ (B : CommRingCat.{0}) (y : PtOver X q κ₂ B), (show PtOver 
         refine Eq.trans ?_ ((m.obj (redObj T d₂ h)).w r).symm
         exact congrArg (Ideal.Quotient.mk _) (tr_comm d₁ d₂ hρ T r)
       · refine Eq.trans ?_ (hpt _ _).symm
-        change Spec.map _ ≫ Spec.map _ ≫ pt T = Spec.map _ ≫ pt T
+        let f₁ := CommRingCat.ofHom (qBar T l (n + 1))
+        let f₂ := CommRingCat.ofHom (Ideal.quotientMap (Ideal.map (Ideal.Quotient.mk (lnT T l n)) T.J) (lnMap (RingHom.id T.B) l n.le_succ) (Ideal.map_le_iff_le_comap.1 (tr_dp T h n).1))
+        let f₃ := CommRingCat.ofHom (qBar T l n)
+        change Spec.map f₂ ≫ Spec.map f₁ ≫ pt T = Spec.map f₃ ≫ pt T
         rw [← Category.assoc, ← Spec.map_comp]
-        congr 2
-        exact CommRingCat.hom_ext (Ideal.Quotient.ringHom_ext (RingHom.ext fun _ => rfl)))
+        exact congrArg (fun g => Spec.map g ≫ pt T) (CommRingCat.hom_ext (Ideal.Quotient.ringHom_ext (RingHom.ext fun _ => rfl))))
 
 end
 

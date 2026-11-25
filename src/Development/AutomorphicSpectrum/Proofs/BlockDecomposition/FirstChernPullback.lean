@@ -9,7 +9,6 @@ import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCohomology
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 namespace GlobalTheory.CompanionTheory.FirstChernPullback
@@ -35,7 +34,6 @@ theorem u_congr {X : Scheme.{0}} (D : E.LineData X) {A : CommRingCat.{0}} {a a' 
   rfl
 
 end GlobalTheory.CompanionTheory.FirstChernPullback
-
 
 open GlobalTheory.CompanionTheory.FirstChernPullback in
 theorem GlobalTheory.CompanionTheory.FirstChernPullback.firstChern_pullback : ∀ {O O' R R' : Type} [CommRing O] [CommRing O'] [CommRing R] [CommRing R'] {I : Ideal R} {I' : Ideal R'}
@@ -73,8 +71,10 @@ theorem GlobalTheory.CompanionTheory.FirstChernPullback.firstChern_pullback : �
     { p := fun T => Λ'.p T ≫ Limits.pullback.fst D.f m.u
       hp := fun T => by
         have e := Λ'.hp T
-        rw [Category.assoc, Limits.pullback.condition, ← Category.assoc]
-        exact congrArg (· ≫ m.u) e
+        let pT : _ ⟶ Limits.pullback D.f m.u := Λ'.p T
+        exact (Category.assoc pT (Limits.pullback.fst D.f m.u) D.f).trans
+          ((congrArg (pT ≫ ·) Limits.pullback.condition).trans
+            ((Category.assoc pT (Limits.pullback.snd D.f m.u) m.u).symm.trans (congrArg (· ≫ m.u) e)))
       w := fun φ => Λ'.w φ
       hw := fun {T T'} φ hh => by
         have hh' : (B.thSp ((G' ⋙ (St Q₀ {⊤}).ι).map φ) ≫ Λ'.p T) ≫ (D.pb m.u).f = Λ'.p T' ≫ (D.pb m.u).f := by
@@ -97,10 +97,10 @@ theorem GlobalTheory.CompanionTheory.FirstChernPullback.firstChern_pullback : �
   have hE : μ.pullC 2 (Λ.coc (RingHom.id R) N) = ψ.pullC 2 (Λ'.coc (RingHom.id R') N) := by
     funext s
     rfl
-  have b1 : CH.d _ 2 (ψ.pullC 2 (Λ'.coc (RingHom.id R') N)) = 0 := by
-    rw [ψ.d_pullC, hz1, map_zero]
-  have b2 : CH.d _ 2 (μ.pullC 2 (Λ.coc (RingHom.id R) N)) = 0 := by
-    rw [μ.d_pullC, hz2, map_zero]
+  have b1 : CH.d _ 2 (ψ.pullC 2 (Λ'.coc (RingHom.id R') N)) = 0 :=
+    (ψ.d_pullC 2 (Λ'.coc (RingHom.id R') N : CH.Cn (G' ⋙ CH.modF (sP (St Q₀ {⊤})).A) 2)).trans (by rw [hz1, map_zero])
+  have b2 : CH.d _ 2 (μ.pullC 2 (Λ.coc (RingHom.id R) N)) = 0 :=
+    (μ.d_pullC 2 (Λ.coc (RingHom.id R) N : CH.Cn (G'' ⋙ CH.modF (sP Q).A) 2)).trans (by rw [hz2, map_zero])
   have k1 : ψ.pull 2 ((CH.cx _).cls _ hz1) = (CH.cx _).cls _ b1 := CrystallineSemistableComparison.P.mapH_cls ψ.hom 2 _ hz1 b1
   have k2 : μ.pull 2 ((CH.cx _).cls _ hz2) = (CH.cx _).cls _ b2 := CrystallineSemistableComparison.P.mapH_cls μ.hom 2 _ hz2 b2
   have key : ∀ (a b : CH.Cn (CH.modF (sP (St Q₀ 𝒱)).A) 2) (ha : CH.d _ 2 a = 0) (hb : CH.d _ 2 b = 0), a = b →

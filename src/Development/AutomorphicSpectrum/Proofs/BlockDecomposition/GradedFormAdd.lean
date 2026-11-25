@@ -5,7 +5,6 @@ public import Development.AutomorphicSpectrum.Proofs.BlockDecomposition.SheafFil
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 noncomputable section
 namespace GlobalTheory.CompanionTheory.GrForm
@@ -86,12 +85,25 @@ theorem stAdd : StAdd := by
       (fun I => (show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x I)) +
         (show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x' I)))
       (fun I => lft_add_sub _ (hP _ (s.obj (Fin.last r)).property) _ _)
-    simpa only [mul_add, Finset.sum_add_distrib] using this
+    have heq : (∑ I : Idx r d, wz (Φ := sP P) (fun i T => u i T.obj) I.1 s *
+        ((show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x I)) +
+          (show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x' I)))) =
+        (∑ I : Idx r d, wz (Φ := sP P) (fun i T => u i T.obj) I.1 s *
+          (show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x I))) +
+        (∑ I : Idx r d, wz (Φ := sP P) (fun i T => u i T.obj) I.1 s *
+          (show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x' I))) := by
+      rw [← Finset.sum_add_distrib]; exact Finset.sum_congr rfl fun I _ => mul_add _ _ _
+    exact heq ▸ this
   · refine rep_neg (fun s => ?_) hc
     have := sum_wz_sub hF (fun i T => u i T.obj) hcoc (fun I : Idx r d => I.1) s
       (fun I => (show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj ((-x) I)))
       (fun I => -(show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x I)))
       (fun I => lft_neg_sub _ (hP _ (s.obj (Fin.last r)).property) _)
-    simpa only [mul_neg, Finset.sum_neg_distrib] using this
+    have heq : (∑ I : Idx r d, wz (Φ := sP P) (fun i T => u i T.obj) I.1 s *
+        -(show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x I))) =
+        -(∑ I : Idx r d, wz (Φ := sP P) (fun i T => u i T.obj) I.1 s *
+          (show (sP P).A.obj (s.obj (Fin.last r)) from lft W (s.obj (Fin.last r)).obj (x I))) := by
+      rw [← Finset.sum_neg_distrib]; exact Finset.sum_congr rfl fun I _ => mul_neg _ _
+    exact heq ▸ this
 
 end GlobalTheory.CompanionTheory.GrForm
