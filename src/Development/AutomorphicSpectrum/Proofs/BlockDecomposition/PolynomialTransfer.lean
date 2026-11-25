@@ -11,7 +11,6 @@ import Development.WeilBound.CoreStatements.AbelianHeightsDuality.DividedPowerAl
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry GlobalTheory.LogCris DividedPowers GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.Pb CrystallineSemistableComparison.Pb.Site
 open GlobalTheory.CatH (face toLast)
 
@@ -24,7 +23,6 @@ variable {O R : Type} [CommRing O] [CommRing R] {I : Ideal R} {γ : DividedPower
 section Thickening
 
 variable (T : Thick (nlFun γ 0 X q κ)) {l s : ℕ} (hT : TF l s T)
-
 
 include hT in
 theorem tr_facts : fil (trD T s) s = ⊥ ∧
@@ -94,7 +92,7 @@ theorem univ_tr {T' : Thick (nlFun γ 0 X q κ)} (hT' : T'.pdPow s = ⊥) (φ : 
   change ψ.φ = g
   have e := hFu (ψ.φ.comp (Ideal.Quotient.mk (trI T s))) ⟨?_, h2, ?_⟩
   · refine Ideal.Quotient.ringHom_ext ?_
-    rw [e, hgF]
+    exact e.trans hgF.symm
   · have := congrArg Thick.Hom.φ h1
     exact this
   · exact IsDPMorphism.comp _ ψ.dp (trD_spec T s).1

@@ -7,7 +7,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 namespace GlobalTheory.CompanionTheory.SiteCup
@@ -19,13 +18,10 @@ theorem pull_unit_class {R R' : Type} [CommRing R] [CommRing R'] {C C' : Type 1}
     m.pull 0 (CH.oneH A) = CH.oneH A' := by
   unfold CH.Mor.pull CH.oneH
   generalize_proofs p1 p2
-  rw [CrystallineSemistableComparison.P.mapH_cls]
-  · congr 1
-    funext s
-    exact h _
-  · convert p2 using 2
-    funext s
-    exact h _
+  have h1 : m.hom.f 0 (fun _ => (1 : A.obj _)) = (fun _ => (1 : A'.obj _)) := funext fun _ => h _
+  have p1' : (CH.cx (CH.modF A')).d 0 (m.hom.f 0 (fun _ => (1 : A.obj _))) = 0 := by rw [h1]; exact p2
+  refine (CrystallineSemistableComparison.P.mapH_cls m.hom 0 (fun _ => (1 : A.obj _)) p1 p1').trans ?_
+  congr 1
 
 theorem smor_cup : ∀ {R R' : Type} [CommRing R] [CommRing R'] {C C' : Type 1} [Category.{0} C] [Category.{0} C'] {Φ : PDF R C}
     {Φ' : PDF R' C'} {σ : R →+* R'} (m : SMor Φ Φ' σ), (∀ {i j k : ℕ} (h : i + j = k) x y,
@@ -67,11 +63,16 @@ theorem smor_cup : ∀ {R R' : Type} [CommRing R] [CommRing R'] {C C' : Type 1} 
   obtain ⟨hc', e'⟩ := cup_cls (CH.mulP Φ'.A) h _ _ (hz _ _ ha) (hz _ _ hb)
   rw [e]
   unfold CH.Mor.pull
-  rw [CrystallineSemistableComparison.P.mapH_cls _ _ _ _ (hz _ _ ha), CrystallineSemistableComparison.P.mapH_cls _ _ _ _ (hz _ _ hb), e',
-    CrystallineSemistableComparison.P.mapH_cls _ _ _ _ (hz _ _ hc)]
-  congr 1
-  funext s
-  simp [CH.Mor.hom, CH.Mor.pullC, CH.mulP, CH.Pairing.cupC, SMor.o, CH.term, CH.modF]
-  congr 1 <;> exact m.nat _ _
+  have ha' := CrystallineSemistableComparison.P.mapH_cls m.o.hom i a ha (hz _ _ ha)
+  have hb' := CrystallineSemistableComparison.P.mapH_cls m.o.hom j b hb (hz _ _ hb)
+  have hc'2 := CrystallineSemistableComparison.P.mapH_cls m.o.hom k _ hc (hz _ _ hc)
+  have hfn : m.o.hom.f k ((CH.mulP Φ.A).cupC h a b) = (CH.mulP Φ'.A).cupC h (m.o.hom.f i a) (m.o.hom.f j b) := by
+    funext s
+    simp only [CH.Mor.hom, CH.Mor.pullC, CH.mulP, CH.Pairing.cupC, SMor.o, CH.term, CH.modF, LinearMap.coe_mk, AddHom.coe_mk, ModuleCat.hom_ofHom, LinearMap.mk₂_apply]
+    exact (map_mul (m.ρ (s.obj (Fin.last k))) _ _).trans (congrArg₂ (· * ·) (m.nat _ _) (m.nat _ _))
+  have hcls : (CH.cx (CH.modF Φ'.A)).cls (m.o.hom.f k ((CH.mulP Φ.A).cupC h a b)) (hz _ _ hc) =
+      (CH.cx (CH.modF Φ'.A)).cls ((CH.mulP Φ'.A).cupC h (m.o.hom.f i a) (m.o.hom.f j b)) hc' := by
+    congr 1
+  exact hc'2.trans (hcls.trans (e'.symm.trans (by rw [ha', hb'])))
 
 end GlobalTheory.CompanionTheory.SiteCup

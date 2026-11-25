@@ -4,7 +4,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry Opposite CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.E GlobalTheory.EtC
 
 noncomputable section
@@ -87,17 +86,15 @@ theorem lineFun_res {U V : Scheme.{0}} {k : ℕ} (g : V ⟶ U) (y : Fin (k + 1) 
     (hy' : ∀ i j, y' i ≫ D.f = y' j ≫ D.f) (e : ∀ i, y' i = g ≫ y i) :
     lineFun D y' hy' = (show Fin (k + 1) ⥤ (glCat 1).obj Γ(U, ⊤) from lineFun D y hy) ⋙
       ((glCat 1).map (Scheme.Γ.map g.op)).toFunctor := by
-  refine CategoryTheory.Functor.ext (fun _ => rfl) (fun i j _ => ?_)
-  simp only [eqToHom_refl, Category.comp_id, Category.id_comp]
+  refine CategoryTheory.Functor.hext (fun _ => rfl) (fun i j _ => heq_of_eq ?_)
   change Matrix.GeneralLinearGroup.scalar (Fin 1) (D.u (y' i) (y' j) (hy' i j)) =
     Matrix.GeneralLinearGroup.map (Scheme.Γ.map g.op).hom
       (Matrix.GeneralLinearGroup.scalar (Fin 1) (D.u (y i) (y j) (hy i j)))
-  rw [← scalar_map]
+  refine Eq.trans ?_ (scalar_map (Scheme.Γ.map g.op) (D.u (y i) (y j) (hy i j)))
   congr 1
   rw [u_congr D (e i) (e j) (hy' i j) (by rw [Category.assoc, Category.assoc, hy i j]),
     D.nat g (y i) (y j) (hy i j)]
   rfl
-
 
 variable (D) in
 def lineMap (hC : CechPt) : cech D.f ⟶ ofCat (glCat 1) where

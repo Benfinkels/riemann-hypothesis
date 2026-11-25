@@ -4,7 +4,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry Opposite CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.E GlobalTheory.EtC
 
 namespace GlobalTheory.CompanionTheory.EtSpecProof
@@ -35,8 +34,9 @@ theorem map_glob (Y : P.Pts X) (i : ℤ) (j : ℕ) (a : Sec ((GlobalTheory.EtC.r
 theorem d_glob (Y : P.Pts X) (i : ℤ) (j : ℕ) (a : Sec ((GlobalTheory.EtC.res _ (tw q i)).X (j : ℤ)) X) :
     d ((P.res i).K j) 0 (Y.glob i j a) = 0 := by
   funext s
+  let v : (((P.res i).K j).obj (s.obj (Fin.last 1)) : Type _) := Sec.res (Y.y (s.obj (Fin.last 1))) a
   have h : ∀ k : Fin 2, (((P.res i).K j).map (GlobalTheory.CatH.toLast k s)).hom (Y.glob i j a (GlobalTheory.CatH.face k s)) =
-      Sec.res (Y.y (s.obj (Fin.last 1))) a := fun k => map_glob Y i j a _
+      v := fun k => map_glob Y i j a _
   change ∑ k : Fin 2, (-1 : ℤ) ^ (k : ℕ) •
     (((P.res i).K j).map (GlobalTheory.CatH.toLast k s)).hom (Y.glob i j a (GlobalTheory.CatH.face k s)) = 0
   rw [Fin.sum_univ_two, h 0, h 1]

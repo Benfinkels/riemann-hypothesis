@@ -5,7 +5,6 @@ import Mathlib.Tactic.Linter.Style
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry Opposite CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.E GlobalTheory.EtC
 
 noncomputable section
@@ -19,10 +18,12 @@ def secPair (P : Probe C q) (i i' : ℤ) (s t r : ℕ) (h : s + t = r) :
   μ c := LinearMap.mk₂ ℤ
     (fun (a : Sec ((GlobalTheory.EtC.res _ (tw q i)).X (s : ℤ)) (P.U c)) (b : Sec ((GlobalTheory.EtC.res _ (tw q i')).X (t : ℤ)) (P.U c)) =>
       (twPair q i i').mul (P.U c) (s : ℤ) (t : ℤ) (r : ℤ) (by omega) a b)
-    (fun a a' b => by simp)
-    (fun n a b => by simp)
-    (fun a b b' => by simp)
-    (fun n a b => by simp)
+    (fun a a' b => congrArg (fun f => f (b : Sec ((GlobalTheory.EtC.res _ (tw q i')).X (t : ℤ)) (P.U c)))
+      (map_add ((twPair q i i').mul (P.U c) (s : ℤ) (t : ℤ) (r : ℤ) (by omega)) (a : Sec ((GlobalTheory.EtC.res _ (tw q i)).X (s : ℤ)) (P.U c)) (a' : Sec ((GlobalTheory.EtC.res _ (tw q i)).X (s : ℤ)) (P.U c))))
+    (fun n a b => congrArg (fun f => f (b : Sec ((GlobalTheory.EtC.res _ (tw q i')).X (t : ℤ)) (P.U c)))
+      (map_zsmul ((twPair q i i').mul (P.U c) (s : ℤ) (t : ℤ) (r : ℤ) (by omega)) n (a : Sec ((GlobalTheory.EtC.res _ (tw q i)).X (s : ℤ)) (P.U c))))
+    (fun a b b' => map_add ((twPair q i i').mul (P.U c) (s : ℤ) (t : ℤ) (r : ℤ) (by omega) (a : Sec ((GlobalTheory.EtC.res _ (tw q i)).X (s : ℤ)) (P.U c))) (b : Sec ((GlobalTheory.EtC.res _ (tw q i')).X (t : ℤ)) (P.U c)) (b' : Sec ((GlobalTheory.EtC.res _ (tw q i')).X (t : ℤ)) (P.U c)))
+    (fun n a b => map_zsmul ((twPair q i i').mul (P.U c) (s : ℤ) (t : ℤ) (r : ℤ) (by omega) (a : Sec ((GlobalTheory.EtC.res _ (tw q i)).X (s : ℤ)) (P.U c))) n (b : Sec ((GlobalTheory.EtC.res _ (tw q i')).X (t : ℤ)) (P.U c)))
   nat {c c'} φ x y := ((twPair q i i').nat (P.S.map φ).unop (s : ℤ) (t : ℤ) (r : ℤ) (by omega) x y).symm
 
 def resPair [NeZero q] (hK : KapMul) (hT : InTw) (P : Probe C q) (i i' : ℤ) :
@@ -60,8 +61,7 @@ theorem cupC_glob (P : Probe C q) {X : Scheme.{0}} (Y : P.Pts X) (i i' : ℤ) (j
   simp only [CH.Pairing.cupC, secPair]
   funext s
   simp only [LinearMap.mk₂_apply, term_glob]
-  rw [← (twPair q i i').nat]
-  rfl
+  exact ((twPair q i i').nat (Y.y (s.obj (Fin.last 0))) (j : ℤ) (j' : ℤ) (n : ℤ) (by omega) a b).symm
 
 theorem cast_cup {E : Spc} {n m k i j : ℤ} (h : n + m = k) (hc : n + m = k) (x : Ht q E n i) (y : Ht q E m j) :
     Ht.cast hc rfl (GlobalTheory.EtC.cup q x y) = (twPair q i j).cup E h x y := by
