@@ -6,7 +6,6 @@ import Development.AbelianVarietyTheory.Definitions.GaloisGeometry.IsDPMorphismB
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 set_option linter.unusedVariables false
@@ -96,7 +95,22 @@ theorem eta_nat {X Y : Pt E'} (φ : X.T ⟶ Y.T) :
   have e3 : Q.j (m.G.obj X.T) ≫ Cut.Pmap (X := (Gp m E E' e).obj X) (Y := (Gp m E E' e).obj Y) Q (m.G.map φ) ≫
       (etaC m E E' e he hρ Q Q' Y).1 = Q.j (m.G.obj X.T) ≫ (etaC m E E' e he hρ Q Q' X).1 ≫
         m.G.map (Cut.Pmap (X := X) (Y := Y) Q' φ) := by
-    rw [← Category.assoc, e1, Category.assoc, j_eta, ← Category.assoc (Q.j _), j_eta, ← m.G.map_comp, ← m.G.map_comp, e2]
+    let ηX : Q.P (m.G.obj X.T) ⟶ m.G.obj (Q'.P X.T) := (etaC m E E' e he hρ Q Q' X).1
+    let ηY : Q.P (m.G.obj Y.T) ⟶ m.G.obj (Q'.P Y.T) := (etaC m E E' e he hρ Q Q' Y).1
+    have jX : Q.j (m.G.obj X.T) ≫ ηX = m.G.map (Q'.j X.T) := j_eta m E E' e he hρ Q Q' X
+    have jY : Q.j (m.G.obj Y.T) ≫ ηY = m.G.map (Q'.j Y.T) := j_eta m E E' e he hρ Q Q' Y
+    change Q.j (m.G.obj X.T) ≫ Cut.Pmap (X := (Gp m E E' e).obj X) (Y := (Gp m E E' e).obj Y) Q (m.G.map φ) ≫ ηY =
+      Q.j (m.G.obj X.T) ≫ ηX ≫ m.G.map (Cut.Pmap (X := X) (Y := Y) Q' φ)
+    calc Q.j (m.G.obj X.T) ≫ Cut.Pmap (X := (Gp m E E' e).obj X) (Y := (Gp m E E' e).obj Y) Q (m.G.map φ) ≫ ηY
+        = (Q.j (m.G.obj X.T) ≫ Cut.Pmap (X := (Gp m E E' e).obj X) (Y := (Gp m E E' e).obj Y) Q (m.G.map φ)) ≫ ηY := (Category.assoc _ _ _).symm
+      _ = (m.G.map φ ≫ Q.j (m.G.obj Y.T)) ≫ ηY := congrArg (· ≫ ηY) e1
+      _ = m.G.map φ ≫ Q.j (m.G.obj Y.T) ≫ ηY := Category.assoc _ _ _
+      _ = m.G.map φ ≫ m.G.map (Q'.j Y.T) := congrArg (m.G.map φ ≫ ·) jY
+      _ = m.G.map (φ ≫ Q'.j Y.T) := (m.G.map_comp _ _).symm
+      _ = m.G.map (Q'.j X.T ≫ Cut.Pmap (X := X) (Y := Y) Q' φ) := congrArg m.G.map e2.symm
+      _ = m.G.map (Q'.j X.T) ≫ m.G.map (Cut.Pmap (X := X) (Y := Y) Q' φ) := m.G.map_comp _ _
+      _ = (Q.j (m.G.obj X.T) ≫ ηX) ≫ m.G.map (Cut.Pmap (X := X) (Y := Y) Q' φ) := congrArg (· ≫ _) jX.symm
+      _ = Q.j (m.G.obj X.T) ≫ ηX ≫ m.G.map (Cut.Pmap (X := X) (Y := Y) Q' φ) := Category.assoc _ _ _
   have e4 := Cut.truncation_hom_ext Q (X := (Gp m E E' e).obj X) (Y := (G1 m E E' e he hρ).obj ((Cut.P0 Q').obj Y))
     (ψ := (Cut.P0 Q).map (show (Gp m E E' e).obj X ⟶ (Gp m E E' e).obj Y from m.G.map φ) ≫ etaC m E E' e he hρ Q Q' Y)
     (ψ' := etaC m E E' e he hρ Q Q' X ≫ (G1 m E E' e he hρ).map ((Cut.P0 Q').map (show X ⟶ Y from φ))) e3
@@ -117,12 +131,12 @@ def mP (c : R') {a b : IdF Φ.A} {a' b' : IdF Φ'.A} (ha : m.LeC c a a') (hb : m
         ((sq a' b').map (Cut.Pmap (X := X) (Y := Y) Q' φ)).hom
           ((m.sqC c ha hb).τ (Q'.P X.T) (((sq a b).map (etaC m E E' e he hρ Q Q' X).1).hom x)) := by
       intro φ x
-      rw [← (m.sqC c ha hb).nat]
+      refine Eq.trans ?_ ((m.sqC c ha hb).nat (Cut.Pmap (X := X) (Y := Y) Q' φ) (((sq a b).map (etaC m E E' e he hρ Q Q' X).1).hom x))
       congr 1
       have h := eta_nat m E E' e he hρ Q Q' (X := X) (Y := Y) φ
-      have h2 := congrArg (fun t => ((sq a b).map t).hom x) h
-      simp only [Functor.map_comp, ModuleCat.hom_comp, LinearMap.comp_apply] at h2
-      exact h2
+      have hm1 := congrArg (fun f => f.hom x) ((sq a b).map_comp (Cut.Pmap (X := (Gp m E E' e).obj X) (Y := (Gp m E E' e).obj Y) Q (m.G.map φ)) (etaC m E E' e he hρ Q Q' Y).1)
+      have hm2 := congrArg (fun f => f.hom x) ((sq a b).map_comp (etaC m E E' e he hρ Q Q' X).1 (m.G.map (Cut.Pmap (X := X) (Y := Y) Q' φ)))
+      exact hm1.symm.trans ((congrArg (fun t => ((sq a b).map t).hom x) h).trans hm2)
     exact key φ x
 
 end Cuts

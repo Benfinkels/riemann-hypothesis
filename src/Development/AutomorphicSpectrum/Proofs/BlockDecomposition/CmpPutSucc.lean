@@ -5,7 +5,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory Polynomial CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.B
 open GlobalTheory.CatH (face toLast)
 universe w w' v u v' u' v'' u''
@@ -32,8 +31,7 @@ def put (h0 : ∀ T, (Ψ.S 0).S T = ⊤) (j : ℕ) (z : Cn F j) : Cn Ψ.rees j :
 theorem cmp_d (r j : ℕ) (f : Cn Ψ.rees j) : cmp Ψ r (j + 1) (d Ψ.rees j f) = d F j (cmp Ψ r j f) := by
   funext s
   refine (map_sum (ev Ψ r _) _ _).trans (Finset.sum_congr rfl fun i _ => ?_)
-  rw [map_zsmul]
-  rfl
+  exact map_zsmul (ev Ψ r (s.obj (Fin.last (j + 1)))) ((-1 : ℤ) ^ (i : ℕ)) (((Ψ.rees.map (toLast i s)).hom (f (face i s)) : Ψ.Pr _))
 
 theorem cmp_zero (r j : ℕ) : cmp Ψ r j 0 = 0 := rfl
 
@@ -152,8 +150,8 @@ theorem main : ∀ {R : Type} [CommRing R] {C : Type u} [Category.{v} C] {C' : T
     obtain ⟨Z, hZ, rfl⟩ := (P.cls_surj (cx Φ.rees) j).1 x'
     have hZ' : d (G ⋙ Φ.rees) j ((Mor.restrict Φ.rees G).pullC j Z) = 0 := by
       rw [Mor.d_pullC, hZ, map_zero]
-    have hXW : d (G ⋙ Φ.rees) j ((X : ℤ[X]) ^ N • put (Φ.comap G) h0' j w) = 0 := by
-      rw [map_smul, hW, smul_zero]
+    have hXW : d (G ⋙ Φ.rees) j ((X : ℤ[X]) ^ N • put (Φ.comap G) h0' j w) = 0 :=
+      ((d (G ⋙ Φ.rees) j).map_smul ((X : ℤ[X]) ^ N) (put (Φ.comap G) h0' j w)).trans (by rw [hW, smul_zero])
     have hx2 := (P.mapH_cls (Mor.restrict Φ.rees G).hom j Z hZ hZ').symm.trans hx'
     rw [← (P.cls_surj (cx (G ⋙ Φ.rees)) j).2.2.2.2 _ _ hW hXW] at hx2
     have hB := ((P.cls_surj (cx (G ⋙ Φ.rees)) j).2.2.1 _ _ hZ' hXW).1 hx2

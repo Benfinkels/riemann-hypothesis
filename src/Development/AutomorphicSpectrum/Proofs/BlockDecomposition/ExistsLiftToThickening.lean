@@ -70,8 +70,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
-
 open CategoryTheory AlgebraicGeometry Polynomial DividedPowers GlobalTheory.LogCris GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.B
 
 namespace GlobalTheory.CompanionTheory.ThickHom
@@ -151,7 +149,9 @@ def homOf (T : Thick (F.cr b ht κ)) {g : s.R →+* T.B ⧸ T.J}
     hs := by
       have : IsEmpty (F.cr b ht κ).ι := inferInstanceAs (IsEmpty Empty)
       have h1 : (liftObj s ht 𝓛 δ hδ hp hn).s = 1 := rfl
-      rw [s_eq_one ht T, h1, map_one, Finset.prod_of_isEmpty, one_mul]
+      rw [s_eq_one ht T, h1, map_one]
+      change (1 : T.Bˣ) = (∏ j : Empty, Empty.elim j) * 1
+      simp
     hv := fun j => j.elim }
 
 theorem main (T : Thick (F.cr b ht κ)) :

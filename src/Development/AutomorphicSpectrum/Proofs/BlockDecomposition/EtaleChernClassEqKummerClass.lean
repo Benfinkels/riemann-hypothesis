@@ -4,7 +4,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry Opposite CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.E GlobalTheory.EtC
 
 namespace GlobalTheory.CompanionTheory.EtaleChernClass
@@ -21,23 +20,25 @@ theorem d_zero_apply (f : Cn F 0) (s : ComposableArrows C 1) :
     d F 0 f s = (show F.obj (s.obj (Fin.last 1)) from f (face 0 s)) - (show F.obj (s.obj (Fin.last 1)) from (F.map (s.map' 0 1)).hom (f (face 1 s))) := by
   change ∑ i : Fin 2, (-1 : ℤ) ^ (i : ℕ) • (F.map (toLast i s)).hom (f (face i s)) = _
   rw [Fin.sum_univ_two]
-  have e0 : toLast (0 : Fin 2) s = 𝟙 _ := s.map_id _
+  have e0 : F.map (toLast (0 : Fin 2) s) = 𝟙 _ := (congrArg F.map (s.map_id _)).trans (F.map_id _)
   have e1 : toLast (1 : Fin 2) s = s.map' 0 1 := rfl
-  rw [e0, e1, F.map_id]
-  simp [sub_eq_add_neg]
-  rfl
+  rw [e0, e1]
+  simp only [Fin.val_zero, pow_zero, one_zsmul, Fin.val_one, pow_one, neg_smul]
+  change (show F.obj (s.obj (Fin.last 1)) from f (face 0 s)) + -(show F.obj (s.obj (Fin.last 1)) from (F.map (s.map' 0 1)).hom (f (face 1 s))) = _
+  rw [← sub_eq_add_neg]
 
 theorem d_one_apply (f : Cn F 1) (s : ComposableArrows C 2) :
     d F 1 f s = (show F.obj (s.obj (Fin.last 2)) from f (face 0 s)) - (show F.obj (s.obj (Fin.last 2)) from f (face 1 s)) +
       (show F.obj (s.obj (Fin.last 2)) from (F.map (s.map' 1 2)).hom (f (face 2 s))) := by
   change ∑ i : Fin 3, (-1 : ℤ) ^ (i : ℕ) • (F.map (toLast i s)).hom (f (face i s)) = _
   rw [Fin.sum_univ_three]
-  have e0 : toLast (0 : Fin 3) s = 𝟙 _ := s.map_id _
-  have e1 : toLast (1 : Fin 3) s = 𝟙 _ := s.map_id _
+  have e0 : F.map (toLast (0 : Fin 3) s) = 𝟙 _ := (congrArg F.map (s.map_id _)).trans (F.map_id _)
+  have e1 : F.map (toLast (1 : Fin 3) s) = 𝟙 _ := (congrArg F.map (s.map_id _)).trans (F.map_id _)
   have e2 : toLast (2 : Fin 3) s = s.map' 1 2 := rfl
-  rw [e0, e1, e2, F.map_id]
-  simp [sub_eq_add_neg]
-  rfl
+  rw [e0, e1, e2]
+  simp only [Fin.val_zero, pow_zero, one_zsmul, Fin.val_one, pow_one, neg_smul, Fin.val_two, even_two, Even.neg_pow, one_pow]
+  change (show F.obj (s.obj (Fin.last 2)) from f (face 0 s)) + -(show F.obj (s.obj (Fin.last 2)) from f (face 1 s)) + (show F.obj (s.obj (Fin.last 2)) from (F.map (s.map' 1 2)).hom (f (face 2 s))) = _
+  rw [← sub_eq_add_neg]
 
 end Cochains
 
@@ -122,7 +123,8 @@ theorem etale_chern_class_eq_kummer_class : CrystallineSemistableComparison.E.Et
   have hSt : (P.res 1).St z 2 0 (Y.glob 1 2 a) := ⟨a₁, h1, a₀, h2.symm, rfl, h3.symm⟩
   have hz : d P.L 2 z = 0 := by
     apply hinj 3
-    rw [map_zero, ← hιd, ← h3, map_smul, d_d, smul_zero]
+    rw [map_zero, ← hιd, ← h3, map_smul, d_d]
+    simp
   exact ⟨hz, ((hES hGen q C P X Y 1 2 x).2 _ ⟨a, hRep, z, hz, hSt, rfl⟩).symm⟩
 
 end GlobalTheory.CompanionTheory.EtaleChernClass

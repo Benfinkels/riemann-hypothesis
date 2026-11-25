@@ -7,7 +7,6 @@ public import Development.WeilBound.CoreStatements.PadicHodgeComparison.EtaleCoh
 
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry GlobalTheory.LogCris CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 open GlobalTheory.CatH (face toLast)
 
@@ -60,8 +59,8 @@ theorem d_val {a b : IdF A} {j : ℕ} (f : CH.Cn (sq a b) j) (z : ∀ s : Compos
       (∑ i : Fin (j + 2), (-1 : ℤ) ^ (i : ℕ) • (A.map (toLast i s)).hom (z (face i s))) := by
 
   rw [map_sum]
-  change Subtype.val (∑ i : Fin (j + 2), (-1 : ℤ) ^ (i : ℕ) • ((sq a b).map (toLast i s)).hom (f (face i s)) :
-      sqM a b _) = _
+  let g : Fin (j + 2) → sqM a b (s.obj (Fin.last (j + 1))) := fun i => (-1 : ℤ) ^ (i : ℕ) • ((sq a b).map (toLast i s)).hom (f (face i s))
+  change Subtype.val (∑ i : Fin (j + 2), g i) = _
   rw [AddSubmonoidClass.coe_finsetSum]
   refine Finset.sum_congr rfl fun i _ => ?_
   rw [map_zsmul]
