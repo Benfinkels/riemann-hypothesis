@@ -31,8 +31,6 @@ open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 open ReciprocityTheory.ChartRestriction.G.Geo.Tor ReciprocityTheory.ChartRestriction.G.Semi GlobalTheory.CechDR MainStatements.Hodge GlobalTheory.CompanionTheory.FewEq
 open GlobalTheory.AbLaw (rs)
 
-set_option backward.isDefEq.respectTransparency false
-
 noncomputable section
 
 namespace GlobalTheory.CompanionTheory.FewEq
@@ -79,7 +77,8 @@ theorem triv_of_compatible_mod (R : Type) [CommRing R] (X : Scheme.{0}) (s : X �
       ⟨ha, hb⟩
     have h := congrArg (gr (𝟙 _) x (π ⁻¹ᵁ (V a ⊓ V b)) hab)
       (app_eq_zero_of_mem_ext s J (V a ⊓ V b) (hc a b))
-    rw [map_zero, gr_app, map_sub, map_mul, tr, gr_res, gr_res, gr_res, sub_eq_zero] at h
+    have hab' : (𝟙 _ ≫ π) x ∈ V a ⊓ V b := hab
+    rw [map_zero, gr_app, map_sub, map_mul, tr, gr_res (𝟙 _ ≫ π) x _ hab', gr_res (𝟙 _ ≫ π) x _ hab', gr_res (𝟙 _ ≫ π) x _ hab', sub_eq_zero] at h
     refine (gr_app _ _ _ _ _ _).trans (h.trans ?_)
     rw [gr_app]
     exact congrArg (· * _) (gr_pull_g M π (𝟙 _) x (hj a ha) (hj b hb) _).symm
@@ -317,8 +316,6 @@ open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 open ReciprocityTheory.ChartRestriction.G.Geo.Tor ReciprocityTheory.ChartRestriction.G.Semi GlobalTheory.CechDR MainStatements.Hodge GlobalTheory.CompanionTheory.FewEq
 open GlobalTheory.AbLaw (rs)
 
-set_option backward.isDefEq.respectTransparency false
-
 noncomputable section
 
 namespace GlobalTheory.CompanionTheory.FewEq.FibreRed
@@ -371,7 +368,7 @@ theorem dep_fibre : DepSt → ∀ (R : Type) [CommRing R] [IsLocalRing R] (X : S
   haveI hg : IsAffineHom g := by
     show IsAffineHom (Spec.map (CommRingCat.ofHom (algebraMap R (IsLocalRing.ResidueField R))))
     infer_instance
-  haveI haff : IsAffineHom φ := MorphismProperty.pullback_fst (P := @IsAffineHom) s g hg
+  haveI haff : IsAffineHom φ := (inferInstance : MorphismProperty.IsStableUnderBaseChange @IsAffineHom).of_isPullback hpb.flip hg
   let V' : A → (pullback s g).Opens := fun a => φ ⁻¹ᵁ V a
   have hV' : ⨆ a, V' a = ⊤ := by
     have h1 : ⨆ a, V' a = φ ⁻¹ᵁ (⨆ a, V a) := (TopologicalSpace.Opens.map_iSup φ.base V).symm
@@ -556,8 +553,6 @@ open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 open ReciprocityTheory.ChartRestriction.G.Geo.Tor ReciprocityTheory.ChartRestriction.G.Semi GlobalTheory.CechDR MainStatements.Hodge GlobalTheory.CompanionTheory.FewEq
 open GlobalTheory.AbLaw (rs)
 
-set_option backward.isDefEq.respectTransparency false
-
 noncomputable section
 
 namespace GlobalTheory.CompanionTheory.FewEq
@@ -589,7 +584,8 @@ theorem exists_local_of_gen {R : Type} [CommRing R] {X Y : Scheme.{0}} (s : X �
             ((congrArg _ (hy c)).trans (gr_res (𝟙 Y) w _ h _))
         refine (gr_app _ _ _ _ _ _).trans ?_
         simp only [tr]
-        rw [map_zero, map_sub, map_mul, gr_res, gr_res, gr_res, e, e, sub_eq_zero]
+        have hw' : (𝟙 Y ≫ π) w ∈ V a ⊓ V b := hw
+        rw [map_zero, map_sub, map_mul, gr_res (𝟙 Y ≫ π) w _ hw', gr_res (𝟙 Y ≫ π) w _ hw', gr_res (𝟙 Y ≫ π) w _ hw', e, e, sub_eq_zero]
         exact gr_gen ht (𝟙 Y) w (hj a hw.1) (hj b hw.2))
     rwa [Ideal.mk_ker] at h
 

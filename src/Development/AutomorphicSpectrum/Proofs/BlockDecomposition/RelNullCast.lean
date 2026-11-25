@@ -135,8 +135,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
-
 open CategoryTheory Limits AlgebraicGeometry GlobalTheory.LogCris CrystallineSemistableComparison CrystallineSemistableComparison.Pb CrystallineSemistableComparison.HT CrystallineSemistableComparison.Onto
 
 noncomputable section
@@ -150,7 +148,9 @@ theorem rs_topIso {V V' : Y.Opens} (h : V' ≤ V) (x : Γ(V, ⊤)) :
     rs h (V.topIso.hom.hom x) = V'.topIso.hom.hom ((Y.homOfLE h).appTop.hom x) := by
   rw [Scheme.homOfLE_appTop]
   simp only [rs, Scheme.Opens.topIso_hom]
-  rw [← CommRingCat.comp_apply, ← CommRingCat.comp_apply, ← Functor.map_comp, ← Functor.map_comp]
+  change (Y.presheaf.map (eqToHom _).op ≫ Y.presheaf.map (homOfLE h).op).hom x =
+    (Y.presheaf.map (homOfLE _).op ≫ Y.presheaf.map (eqToHom _).op).hom x
+  rw [← Functor.map_comp, ← Functor.map_comp]
   rfl
 
 def kerI (q : Y ⟶ Spec (CommRingCat.of K)) (i : W ⟶ Y) (V : Y.Opens) : Ideal (Sec q V) := RingHom.ker (i.app V).hom
@@ -371,7 +371,8 @@ theorem cov_kill (hCK : ConeKill) (hCD : CovDesc) (hDW : DWedge) (hDL : DLog) (h
     (lam α' S hα' (((covSy F₂ U hQ).K S).cls x hx))).trans (congrArg₂ (· - ·) s1 s2)
   refine (e1.trans s3).trans (Eq.trans ?_ e2.symm)
   have e3 : (e₃ S ⟨α', hα'⟩ : _) = e₃ S ⟨α, hα⟩ := rfl
-  rw [e3, ← map_sub, ← smul_sub, d]
+  rw [e3, ← map_sub]
+  exact congrArg (e₃ S ⟨α, hα⟩) ((smul_sub c _ _).symm.trans (congrArg (c • ·) d)).symm
 
 end Kill
 
@@ -403,7 +404,6 @@ theorem d_cup_zero {R : Type} [CommRing R] {C : Type 1} [Category.{0} C] {F₁ F
 section Over
 variable {K : Type} [Field K] [CharZero K] {W Y : Scheme.{0}} {q : Y ⟶ Spec (CommRingCat.of K)} {i : W ⟶ Y}
 open GlobalTheory.CompanionTheory.RelInjAbs GlobalTheory.CompanionTheory.RelInjZ
-
 
 theorem kill_over [IsSeparated q] [IsClosedImmersion i] (hTop : TopRes) (hFU : FormUniq) (hOR : OmRes) (hSL : SiteLaws) (hCD : CovDesc) (hZR : ZarRel)
     (hAO : AffOm) (hAR : AffRel) (hFL : FormLaws) (hDW : DWedge) (hDL : DLog) (hFC : FormCup) (hC1 : FirstChernCoboundary) (hCK : ConeKill)

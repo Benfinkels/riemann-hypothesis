@@ -70,7 +70,6 @@ import Mathlib.Tactic.TypeStar
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry DividedPowers GroundTheory.PAdicHodge GlobalTheory.LogCris GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.PAlg CrystallineSemistableComparison.B
 
 noncomputable section
@@ -168,7 +167,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry DividedPowers GroundTheory.PAdicHodge GlobalTheory.LogCris GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.PAlg CrystallineSemistableComparison.B
 
 end -- clump:auto
@@ -180,7 +178,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry DividedPowers GroundTheory.PAdicHodge GlobalTheory.LogCris GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.PAlg CrystallineSemistableComparison.B
 
 noncomputable section
@@ -286,7 +283,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry DividedPowers GroundTheory.PAdicHodge GlobalTheory.LogCris GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.PAlg CrystallineSemistableComparison.B
 
 noncomputable section
@@ -458,7 +454,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry DividedPowers GroundTheory.PAdicHodge GlobalTheory.LogCris GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.PAlg CrystallineSemistableComparison.B
 
 noncomputable section
@@ -738,8 +733,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
-
 noncomputable section
 
 open CategoryTheory AlgebraicGeometry DividedPowers GroundTheory.PAdicHodge GlobalTheory.LogCris GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.PAlg CrystallineSemistableComparison.B
@@ -1015,11 +1008,24 @@ theorem acr_cont : ∀ {l : ℕ} [Fact l.Prime] (A : PAlg l) (n : ℕ), (∀ x :
   have hj : ∀ z (b : A.Acr n), mapAcr (A.evCont z) n (mapAcr (A.toCont ℤ_[l]) n b) = b := fun z b => by
     rw [← mapAcr_comp, toCont_evCont, mapAcr_id]
   have hE1 : ∀ z (V : Clopens ℤ_[l]), z ∈ V → mapAcr (A.evCont z) n (EE (ind A) n V) = 1 := fun z V h => by
-    rw [EE, mapAcr_toAcr, mapW, WittVector.map_teichmuller, h1 z V h, map_one, map_one]
+    unfold EE
+    rw [mapAcr_toAcr, mapW]
+    exact (congrArg (A.toAcr n) ((WittVector.map_teichmuller l (A.evCont z).f (ind A V)).trans
+      (congrArg (WittVector.teichmuller l) (h1 z V h)))).trans
+      ((congrArg (A.toAcr n) (map_one (WittVector.teichmuller l))).trans (map_one (A.toAcr n)))
   have hEmul : ∀ V W : Clopens ℤ_[l], EE (D := A.cont ℤ_[l]) (ind A) n (V ⊓ W) = EE (ind A) n V * EE (ind A) n W :=
-    fun V W => by rw [EE, EE, EE, ind_mul, map_mul, map_mul]
-  have hEtop : EE (D := A.cont ℤ_[l]) (ind A) n ⊤ = 1 := by rw [EE, ind_top, map_one, map_one]
-  have hEbot : EE (D := A.cont ℤ_[l]) (ind A) n ⊥ = 0 := by rw [EE, ind_bot, WittVector.teichmuller_zero, map_zero]
+    fun V W => by
+      unfold EE
+      exact (congrArg (fun x : (A.cont ℤ_[l]).A => ((A.cont ℤ_[l]).toAcr n) (WittVector.teichmuller l x)) (ind_mul A V W)).trans
+        ((congrArg ((A.cont ℤ_[l]).toAcr n) (map_mul (WittVector.teichmuller l) _ _)).trans (map_mul ((A.cont ℤ_[l]).toAcr n) _ _))
+  have hEtop : EE (D := A.cont ℤ_[l]) (ind A) n ⊤ = 1 := by
+    unfold EE
+    exact (congrArg (fun x : (A.cont ℤ_[l]).A => ((A.cont ℤ_[l]).toAcr n) (WittVector.teichmuller l x)) (ind_top A)).trans
+      ((congrArg ((A.cont ℤ_[l]).toAcr n) (map_one (WittVector.teichmuller l))).trans (map_one ((A.cont ℤ_[l]).toAcr n)))
+  have hEbot : EE (D := A.cont ℤ_[l]) (ind A) n ⊥ = 0 := by
+    unfold EE
+    exact (congrArg (fun x : (A.cont ℤ_[l]).A => ((A.cont ℤ_[l]).toAcr n) (WittVector.teichmuller l x)) (ind_bot A)).trans
+      ((congrArg ((A.cont ℤ_[l]).toAcr n) (WittVector.teichmuller_zero l)).trans (map_zero ((A.cont ℤ_[l]).toAcr n)))
   have hEc := EE_compl (fun z => A.evCont z) (ind A) hinj h1 h0 n
   refine ⟨fun x => lc_of_simple hj hE1 (hS x), fun x hx => zero_of_simple hEmul hEtop hEbot hEc (hS x) hx,
     fun 𝔞 f hf hI => exists_of_lc hEc hj hE1 _ f hf fun z => ?_⟩
@@ -1040,7 +1046,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 set_option linter.unusedVariables false
 
 open CategoryTheory AlgebraicGeometry DividedPowers GroundTheory.PAdicHodge GlobalTheory.LogCris GlobalTheory.PDA CrystallineSemistableComparison CrystallineSemistableComparison.CH CrystallineSemistableComparison.PAlg CrystallineSemistableComparison.B

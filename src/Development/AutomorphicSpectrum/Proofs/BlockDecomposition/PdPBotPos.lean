@@ -23,7 +23,6 @@ import Std.Tactic.BVDecide.Normalize.Prop
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 namespace GlobalTheory.CompanionTheory.BcMor
@@ -94,7 +93,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 noncomputable section
@@ -307,7 +305,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 namespace GlobalTheory.CompanionTheory.GrPiece
@@ -318,7 +315,6 @@ theorem subsingleton_tmul {O N M : Type} [CommRing O] [AddCommGroup N] [Module O
   | zero => rfl
   | tmul n x => rw [Subsingleton.elim x 0, TensorProduct.tmul_zero]
   | add a b ha hb => rw [ha, hb, add_zero]
-
 
 theorem main : ∀ {O A G : Type} [CommRing O] [CommRing A] [Algebra O A] [CommRing G] [Algebra O G] [Module.Flat O G]
     {I : Ideal A} (γ : DividedPowers I) (m : ℕ) (S : GrSplit O γ m) (u v : ℕ)
@@ -402,7 +398,8 @@ theorem main : ∀ {O A G : Type} [CommRing O] [CommRing A] [Algebra O A] [CommR
       exact t_act i h' _
     · rw [t_inact i (by omega), hzu i (by omega)]
       rfl
-  refine ⟨AddEquiv.ofBijective φ ⟨inj, surj⟩, fun i n x => ?_⟩
+  have hbij : Function.Bijective φ := ⟨inj, surj⟩
+  refine ⟨AddEquiv.ofBijective φ hbij, fun i n x => ?_⟩
   rw [AddEquiv.ofBijective_apply]
   by_cases h : u ≤ (i : ℕ) ∧ (i : ℕ) < v
   · obtain ⟨y, rfl⟩ := (θ i h.1 h.2).surjective x
@@ -431,7 +428,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct GlobalTheory.LogCris DividedPowers CrystallineSemistableComparison CrystallineSemistableComparison.Pb
 
 namespace GlobalTheory.CompanionTheory.BcLoc
@@ -561,7 +557,7 @@ theorem chart_tens : ∀ {O A : Type} [CommRing O] [CommRing A] [Algebra O A] {I
     · exact fun h => Ideal.mem_map_of_mem _ h
   have fa : ∀ (i : Fin m) (hu : (t - c).toNat ≤ (i : ℕ)) (hv : (i : ℕ) < t.toNat),
       ∃ θ : Γ(X, V) ≃ₗ[O] sqM (sFil (TO q l s {V}) (t - c - i)) (sFil (TO q l s {V}) (t - i)) ⟨cO.D, hD⟩,
-        ∀ x, (θ x).1 = Ideal.Quotient.mk _ (eO (1 ⊗ₜ x)) := fun i hu hv =>
+        ∀ x, (θ x).1 = Ideal.Quotient.mk ((sFil (TO q l s {V}) (t - i)).S ⟨cO.D, hD⟩) (eO (1 ⊗ₜ x)) := fun i hu hv =>
     theta_ex (sFil (TO q l s {V}) (t - c - i)) (sFil (TO q l s {V}) (t - i)) ⟨cO.D, hD⟩
       (by
         change cO.D.pdPow _ = ⊤
@@ -572,7 +568,8 @@ theorem chart_tens : ∀ {O A : Type} [CommRing O] [CommRing A] [Algebra O A] {I
         exact bot1 _ (by omega)) eO hiO
   choose θ hθ using fa
   obtain ⟨π, hs, hk, hπ⟩ := pi_ex (sFil (TS γ q l s {V}) (t - c)) (sFil (TS γ q l s {V}) t) ⟨cA.D, hD'⟩ eA (mA _) (mA _)
-  refine _root_.GlobalTheory.CompanionTheory.GrPiece.main (O := O) (A := A) (G := Γ(X, V)) γ m S (t - c).toNat t.toNat θ ?_ π hs hk _ ?_ ?_
+  refine _root_.GlobalTheory.CompanionTheory.GrPiece.main (O := O) (A := A) (G := Γ(X, V)) γ m S (t - c).toNat t.toNat θ ?_ π hs hk
+    (fun i n x => ((smO γ q l s {V}).sqC (S.ν i n) (ha i n) (hb i n)).τ ⟨cA.D, hD'⟩ (((sq (sFil (TO q l s {V}) (t - c - i)) (sFil (TO q l s {V}) (t - i))).map e).hom x)) ?_ ?_
   · intro i hi
     by_cases hu : (t - c).toNat ≤ (i : ℕ)
     · refine sub_of_top _ _ _ ?_
@@ -585,7 +582,9 @@ theorem chart_tens : ∀ {O A : Type} [CommRing O] [CommRing A] [Algebra O A] {I
       change cO.D.pdPow _ = ⊥
       exact bot1 _ (by omega)
   · intro i n
-    simp only [map_zero]
+    exact (congrArg (((smO γ q l s {V}).sqC (S.ν i n) (ha i n) (hb i n)).τ ⟨cA.D, hD'⟩)
+      (map_zero ((sq (sFil (TO q l s {V}) (t - c - i)) (sFil (TO q l s {V}) (t - i))).map e).hom)).trans
+      (map_zero (((smO γ q l s {V}).sqC (S.ν i n) (ha i n) (hb i n)).τ ⟨cA.D, hD'⟩))
   · intro i n x hu hv hx
     refine Subtype.ext ?_
     rw [hπ]

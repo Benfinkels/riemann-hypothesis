@@ -240,7 +240,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct DirectSum GlobalTheory.LogCris CrystallineSemistableComparison CrystallineSemistableComparison.Onto CrystallineSemistableComparison.Pb CrystallineSemistableComparison.HT GlobalTheory.CompanionTheory.KunGlue
 
 end -- clump:auto
@@ -356,7 +355,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 set_option linter.unusedVariables false
 
 noncomputable section
@@ -461,7 +459,8 @@ theorem kunE_of_diag {P Q T : ℕ → Cx.{w} K} (pr : ∀ {a a' c : ℕ}, a + a'
       obtain rfl : j = a' := by omega
       obtain rfl : j = n - i := by omega
       exact ⟨⟨i, by omega⟩, rfl⟩
-    refine ⟨(sumPi (R := K) (fun t : Idx n n => (P t.a).H t.i ⊗[K] (Q t.a').H t.j) (diag n) (diag_inj n) hz).trans e, ?_⟩
+    let e' : ((b : Fin (n + 1)) → (P (diag n b).a).H (diag n b).i ⊗[K] (Q (diag n b).a').H (diag n b).j) ≃ₗ[K] (T n).H n := e
+    refine ⟨(sumPi (R := K) (fun t : Idx n n => (P t.a).H t.i ⊗[K] (Q t.a').H t.j) (diag n) (diag_inj n) hz).trans e', ?_⟩
     intro t x y hx hy hw
     by_cases ht : t ∈ Set.range (diag n)
     · obtain ⟨b, rfl⟩ := ht
@@ -547,7 +546,6 @@ end -- clump:auto
 section -- clump:auto
 @[expose] public section
 
-set_option backward.isDefEq.respectTransparency false
 open CategoryTheory AlgebraicGeometry TensorProduct DirectSum GlobalTheory.LogCris CrystallineSemistableComparison CrystallineSemistableComparison.Onto CrystallineSemistableComparison.Pb CrystallineSemistableComparison.HT GlobalTheory.CompanionTheory.KunGlue
 
 namespace GlobalTheory.CompanionTheory.KunGlue.Right
@@ -627,7 +625,7 @@ theorem kun_right : SiteLaws → MVBij → CovDesc → ZarAbs → AffOm → KunA
     capU_of_forall _ _ S hS fun T => inU_biInf hs q' U.U S T
   have eW : ∀ S : Finset U.ι, S.Nonempty →
       capU Ww S = inU (p₁ ≫ q) (p₁ ⁻¹ᵁ V ⊓ p₂ ⁻¹ᵁ ⨅ α ∈ S, U.U α) := fun S hS =>
-    capU_of_forall _ _ S hS fun T => by
+    capU_of_forall _ _ S hS fun (T : Thick (smFun P (p₁ ≫ q))) => by
       obtain ⟨α₀, hα₀⟩ := hS
       rw [hinfP, inU_pre hs p₂ hw, inU_biInf hs q' U.U S]
       refine ⟨fun h α hα => (hinfP _ _ T).2 ⟨h.1, (inU_pre hs p₂ hw _ T).2 (h.2 α hα)⟩, fun h => ⟨((hinfP _ _ T).1 (h α₀ hα₀)).1, fun α hα => (inU_pre hs p₂ hw _ T).1 ((hinfP _ _ T).1 (h α hα)).2⟩⟩
